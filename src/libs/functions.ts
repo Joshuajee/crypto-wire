@@ -1,5 +1,6 @@
 import { ethers } from "ethers";
 import Web3Modal from "web3modal";
+import convert from "hex2dec";
 import tokenABI from "./abi.json";
 import { providerOptions } from "./config";
 
@@ -85,12 +86,6 @@ export async function connect() {
 }
 
 export async function transfer(tokenAddress: string, to: string, amount: number){
-    // const provider = new ethers.providers.JsonRpcProvider(
-    //   "https://polygon-mumbai.g.alchemy.com/v2/C1ubMKQmO35l6oZPGepgu7DBraYGtg9U"
-    // );
-    // const signer = provider.getSigner();
-    //const network = await provider.getNetwork();
-    //console.log(network);
 
     const ABI = tokenABI
 
@@ -112,11 +107,41 @@ export async function transfer(tokenAddress: string, to: string, amount: number)
         signer
     );
 
-    //const result = await currentContract.symbol();
-
-    const result = await currentContract.transfer(to, amount);
-    console.log(result);
+    const result = await currentContract.transfer(to, ethers.utils.parseEther(String(amount)));
 
     return result
 
 }
+
+
+
+export async function balanceOf(tokenAddress: string, address: string){
+
+    const ABI = tokenABI
+
+    const web3Modal = new Web3Modal({
+        // network: "mainnet", // optional
+        //cacheProvider: true, // optional
+        disableInjectedProvider: false,
+        providerOptions: providerOptions as any, // required
+    });
+
+    // const instance = await web3Modal.connectTo("walletconnect");
+    const instance = await web3Modal.connect();
+    const provider = new ethers.providers.Web3Provider(instance);
+    await provider.send("eth_requestAccounts", []);
+    const signer = provider.getSigner();
+    const currentContract = new ethers.Contract(
+        tokenAddress,
+        ABI,
+        signer
+    );
+
+    const result = await currentContract.balanceOf(address);
+
+    
+
+    return  Number(convert.hexToDec(result._hex)) / (10 ** 18)
+
+}
+

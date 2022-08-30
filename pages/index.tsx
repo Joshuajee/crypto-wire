@@ -1,11 +1,11 @@
-import { Card, Container, FormControl, Grid, MenuItem, TextField, Typography, useMediaQuery } from '@mui/material'
+import { Alert, Box, Card, Container, FormControl, Grid, MenuItem, Snackbar, TextField, Typography, useMediaQuery } from '@mui/material'
 import { useTheme } from '@mui/material/styles';
 import LoadingButton from '@mui/lab/LoadingButton'
 import type { NextPage } from 'next'
 import React, { useEffect, useState } from 'react'
-import { assets } from '../src/components/lib/assets'
+import { assets } from '../src/libs/assets'
 import Navbar from '../src/components/Navbar'
-import { checkConnectedWalletExist, transfer } from '../src/components/lib/functions'
+import { checkConnectedWalletExist, transfer, balanceOf } from '../src/libs/functions'
 
 
 const Home: NextPage = () => {
@@ -15,20 +15,50 @@ const Home: NextPage = () => {
   const sm = useMediaQuery(theme.breakpoints.down('sm'))
 
 
-  const [wallet, setWallet] = useState('')
+  const [wallet, setWallet] = useState(null)
   const [address, setAddress] = useState('')
   const [asset, setAsset] = useState(assets[0].address)
   const [amount, setAmount] = useState<number | null>(null)
 
-  const fetchWallet = async () =>   setWallet(await checkConnectedWalletExist())
+  const [loading, setLoading] = useState<boolean>(false)
+
+  const [balance, setBalance] = useState<number>(0)
+
+  const [open, setOpen] = useState<boolean>(false)
+
+  const [success, setSuccess] = useState<string | null>(null)
+
+  const [error, setError] = useState<string | null>(null)
+
+  const fetchWallet = async () => setWallet(await checkConnectedWalletExist())
+
+  const fetchBalance = async () => {
+
+    if (wallet) setBalance(await balanceOf(asset, wallet)) 
+    else {
+
+    }
+
+  } 
 
   const handleTransfer = async() => {
 
-    try {
-      if(amount) await transfer(asset, address, amount)
-    } catch (e) {
+    setLoading(true)
 
+    try {
+      if(amount) {
+      const res =  await transfer(asset, address, amount)
+      console.log(res)
+      setSuccess('Transfer successful')
+      setOpen(true)
+      } 
+    } catch (e) {
+      setOpen(true)
+      console.log(e)
+      setError("error")
     }
+
+    setLoading(false)
 
   }
 
@@ -36,20 +66,29 @@ const Home: NextPage = () => {
     fetchWallet()
   }, [])
 
+  useEffect(() => {
+
+    if (wallet && asset) {
+      fetchBalance()
+    }
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [asset, wallet])
 
 
-
-
-  console.log(wallet)
-  console.log(asset)
-  console.log(amount)
-  console.log(address)
+  const handleClose = () => {
+    setOpen(false)
+    setError(null)
+    setSuccess(null)
+  }
 
 
   return (
     <React.Fragment>
 
-    <Navbar wallet={wallet} />
+    <Navbar wallet={wallet}  />
+
+    <Box  sx={{background: 'whitesmoke', height: 'calc(100vh - 70px)', width:'100%'}}>
 
       <Container maxWidth="lg">
 
@@ -61,9 +100,12 @@ const Home: NextPage = () => {
 
               <FormControl sx={{width: "100%", padding: '2em'}}>
 
-                <Typography variant={"subtitle1"} sx={{marginBottom: sm ? '0.6em' : '2em'}}>Send Crypto Assets to anyone and Everyone</Typography>
+                <Typography variant={"h5"} sx={{marginBottom: sm ? '0.6em' : '2em'}}>Send Crypto Assets to anyone and Everyone</Typography>
 
-                <TextField sx={{marginBottom: '0.4em'}} label={"Choose Asset"} value={asset} select onChange={(e) => setAsset(e.target.value) }>
+                <Typography variant={"subtitle1"} sx={{marginBottom: sm ? '0.6em' : '2em'}}>Balance: {balance} </Typography>
+
+
+                <TextField sx={{marginBottom: '0.8em'}} label={"Choose Asset"} value={asset} select onChange={(e) => setAsset(e.target.value) }>
 
                 {
                   assets.map((asset) => (
@@ -74,11 +116,18 @@ const Home: NextPage = () => {
 
                 </TextField>
 
-                <TextField sx={{marginBottom: '0.4em'}} label={"Receipt Address"} onChange={(e) => setAddress(e.target.value)} />
+                <TextField sx={{marginBottom: '0.8em'}} label={"Receipt Address"} onChange={(e) => setAddress(e.target.value)} />
 
-                <TextField sx={{marginBottom: '0.4em'}} label={"Amount"} onChange={(e) => setAmount(Number(e.target.value))} />
+                <TextField sx={{marginBottom: '0.8em'}} label={"Amount"} onChange={(e) => setAmount(Number(e.target.value))} />
 
-                <LoadingButton onClick={handleTransfer} sx={{marginBottom: '0.4em', height: '3.6em'}} variant={'contained'}> Send </LoadingButton>
+                <LoadingButton 
+                  loading={loading} 
+                  onClick={handleTransfer} 
+                  sx={{marginBottom: '0.4em', height: '3.6em'}} 
+                  loadingIndicator={'Sending please wait...'}
+                  variant={'contained'}> 
+                  Send 
+                </LoadingButton>
 
               </FormControl>
 
@@ -89,6 +138,22 @@ const Home: NextPage = () => {
         </Grid>
 
       </Container>
+
+      </Box>
+
+      <Snackbar   
+        open={open}
+        anchorOrigin={{ vertical: "top", horizontal: 'right' }}
+        autoHideDuration={3000}
+        onClose={handleClose}>
+
+          {
+            success ?  <Alert severity='success'> {success} </Alert> : <Alert severity='error'> {error} </Alert>
+          }
+
+
+
+      </Snackbar>
 
     </React.Fragment>
   )

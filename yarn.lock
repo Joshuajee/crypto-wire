@@ -940,6 +940,11 @@
   dependencies:
     "@types/node" "*"
 
+"@types/hex2dec@^1.1.2":
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/@types/hex2dec/-/hex2dec-1.1.2.tgz#de9418d7fdcd7fea8235f93a45e66291d42c7739"
+  integrity sha512-9mWQ0gKYWKybgC0UsW2ZwurhPYyCnO0ZmN7bnvxxk5m19PEydzums7ozq2p5f1pbV07IZ9qjR/IkGYpEIpXNoQ==
+
 "@types/json5@^0.0.29":
   version "0.0.29"
   resolved "https://registry.yarnpkg.com/@types/json5/-/json5-0.0.29.tgz#ee28707ae94e11d2b827bcbe5270bcea7f3e71ee"
@@ -2884,6 +2889,11 @@ hash.js@1.1.7, hash.js@^1.0.0, hash.js@^1.0.3, hash.js@^1.1.7:
   dependencies:
     inherits "^2.0.3"
     minimalistic-assert "^1.0.1"
+
+hex2dec@^1.1.2:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/hex2dec/-/hex2dec-1.1.2.tgz#8e1ce4bef36a74f7d5723c3fb3090c2860077338"
+  integrity sha512-Yu+q/XWr2fFQ11tHxPq4p4EiNkb2y+lAacJNhAdRXVfRIcDH6gi7htWFnnlIzvqHMHoWeIsfXlNAjZInpAOJDA==
 
 hmac-drbg@^1.0.1:
   version "1.0.1"
