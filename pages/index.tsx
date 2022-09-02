@@ -94,7 +94,7 @@ const Home: NextPage = () => {
 
         <Grid container sx={{height: 'calc(100vh - 100px)'}} justifyContent={"center"} alignContent={'center'} >
 
-          <Grid md={6}>
+          <Grid item md={6}>
 
             <Card>
 
