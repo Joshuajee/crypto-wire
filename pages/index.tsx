@@ -3,21 +3,28 @@ import { useTheme } from '@mui/material/styles';
 import LoadingButton from '@mui/lab/LoadingButton'
 import type { NextPage } from 'next'
 import React, { useEffect, useState } from 'react'
-import { assets } from '../src/libs/assets'
+import { bsc, CHAIN_ID, ethereum, mumbai, polygon } from '../src/libs/assets'
 import Navbar from '../src/components/Navbar'
-import { checkConnectedWalletExist, transfer, balanceOf } from '../src/libs/functions'
+import { transfer, balanceOf } from '../src/libs/functions'
+import { useConnectWallet } from '../src/hooks/connect';
 
 
 const Home: NextPage = () => {
 
 
+  const connectWallet = useConnectWallet()
+
+  const { accounts, chainId } = connectWallet
+
   const theme = useTheme()
   const sm = useMediaQuery(theme.breakpoints.down('sm'))
 
+  const [assetList, setAssetList] = useState(ethereum)
 
-  const [wallet, setWallet] = useState(null)
   const [address, setAddress] = useState('')
-  const [asset, setAsset] = useState(assets[0].address)
+
+  const [asset, setAsset] = useState(assetList[0].address)
+
   const [amount, setAmount] = useState<number | null>(null)
 
   const [loading, setLoading] = useState<boolean>(false)
@@ -30,16 +37,15 @@ const Home: NextPage = () => {
 
   const [error, setError] = useState<string | null>(null)
 
-  const fetchWallet = async () => setWallet(await checkConnectedWalletExist())
+  useEffect(() => {
+    connectWallet.getAccount()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const fetchBalance = async () => {
-
-    if (wallet) setBalance(await balanceOf(asset, wallet)) 
-    else {
-
-    }
-
+    if (accounts) setBalance(await balanceOf(asset, accounts)) 
   } 
+
 
   const handleTransfer = async() => {
 
@@ -63,17 +69,13 @@ const Home: NextPage = () => {
   }
 
   useEffect(() => {
-    fetchWallet()
-  }, [])
 
-  useEffect(() => {
-
-    if (wallet && asset) {
+    if (accounts && asset) {
       fetchBalance()
     }
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [asset, wallet])
+  }, [asset, accounts])
 
 
   const handleClose = () => {
@@ -82,62 +84,82 @@ const Home: NextPage = () => {
     setSuccess(null)
   }
 
+  useEffect(() => {
+
+    switch (chainId as CHAIN_ID) {
+      case 1:
+        setAssetList(ethereum)
+        break
+      case 56:
+        setAssetList(bsc)
+        break
+      case 137:
+        setAssetList(polygon)
+        break
+      case 80001:
+        setAssetList(mumbai)
+        break
+      default:
+        console.error("Unsupported Network")
+    }
+
+  }, [chainId])
+
 
   return (
     <React.Fragment>
 
-    <Navbar wallet={wallet}  />
+      <Navbar wallet={connectWallet}  />
 
-    <Box  sx={{background: 'whitesmoke', height: 'calc(100vh - 70px)', width:'100%'}}>
+      <Box sx={{background: 'whitesmoke', height: 'calc(100vh - 70px)', width:'100%'}}>
 
-      <Container maxWidth="lg">
+        <Container maxWidth="lg">
 
-        <Grid container sx={{height: 'calc(100vh - 100px)'}} justifyContent={"center"} alignContent={'center'} >
+          <Grid container sx={{height: 'calc(100vh - 100px)'}} justifyContent={"center"} alignContent={'center'} >
 
-          <Grid md={6}>
+            <Grid item md={6}>
 
-            <Card>
+              <Card>
 
-              <FormControl sx={{width: "100%", padding: '2em'}}>
+                <FormControl sx={{width: "100%", padding: '2em'}}>
 
-                <Typography variant={"h5"} sx={{marginBottom: sm ? '0.6em' : '2em'}}>Send Crypto Assets to anyone and Everyone</Typography>
+                  <Typography variant={"h5"} sx={{marginBottom: sm ? '0.6em' : '2em'}}>Send Crypto Assets to anyone and Everyone</Typography>
 
-                <Typography variant={"subtitle1"} sx={{marginBottom: sm ? '0.6em' : '2em'}}>Balance: {balance} </Typography>
+                  <Typography variant={"subtitle1"} sx={{marginBottom: sm ? '0.6em' : '2em'}}>Balance: {balance} </Typography>
 
+                  <TextField sx={{marginBottom: '0.8em'}} label={"Choose Asset"} value={asset} select onChange={(e) => setAsset(e.target.value) }>
 
-                <TextField sx={{marginBottom: '0.8em'}} label={"Choose Asset"} value={asset} select onChange={(e) => setAsset(e.target.value) }>
+                  {
+                    assetList.map((asset) => (
+                    <MenuItem key={asset.address} value={asset.address}>
+                      {asset.name}
+                    </MenuItem>
+                  ))}
 
-                {
-                  assets.map((asset) => (
-                  <MenuItem key={asset.address} value={asset.address}>
-                    {asset.name}
-                  </MenuItem>
-                ))}
+                  </TextField>
 
-                </TextField>
+                  <TextField sx={{marginBottom: '0.8em'}} label={"Receipt Address"} onChange={(e) => setAddress(e.target.value)} />
 
-                <TextField sx={{marginBottom: '0.8em'}} label={"Receipt Address"} onChange={(e) => setAddress(e.target.value)} />
+                  <TextField sx={{marginBottom: '0.8em'}} label={"Amount"} onChange={(e) => setAmount(Number(e.target.value))} />
 
-                <TextField sx={{marginBottom: '0.8em'}} label={"Amount"} onChange={(e) => setAmount(Number(e.target.value))} />
+                  <LoadingButton 
+                    loading={loading} 
+                    onClick={handleTransfer} 
+                    sx={{marginBottom: '0.4em', height: '3.6em'}} 
+                    loadingIndicator={'Sending please wait...'}
+                    variant={'contained'}> 
+                    Send 
+                  </LoadingButton>
 
-                <LoadingButton 
-                  loading={loading} 
-                  onClick={handleTransfer} 
-                  sx={{marginBottom: '0.4em', height: '3.6em'}} 
-                  loadingIndicator={'Sending please wait...'}
-                  variant={'contained'}> 
-                  Send 
-                </LoadingButton>
+                </FormControl>
 
-              </FormControl>
+              </Card>
 
-            </Card>
+            </Grid>
 
           </Grid>
 
-        </Grid>
-
-      </Container>
+        </Container>
 
       </Box>
 

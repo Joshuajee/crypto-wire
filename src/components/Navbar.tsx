@@ -4,14 +4,18 @@ import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
-import { connect } from '../libs/functions';
+import { useConnectWallet } from '../hooks/connect';
 
 
 interface IProps {
-    wallet: string | null
+  wallet: any;
 }
 
 export default function Navbar(props: IProps) {
+
+  const { wallet } = props
+
+
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static" sx={{background: "white"}}>
@@ -21,16 +25,16 @@ export default function Navbar(props: IProps) {
           </Typography>
 
           {
-            props.wallet ? (
+            wallet?.accounts ? (
                 <Button 
                     color="primary" 
                     variant='contained' 
                     //onClick={connect} 
-                    >{props.wallet.slice(0, 10)}</Button>) :
+                    >{wallet.accounts.slice(0, 10)}</Button>) :
                 (<Button 
                     color="primary" 
                     variant='contained' 
-                    onClick={connect} 
+                    onClick={wallet.connect} 
                     >Connect</Button>
                 )
           }

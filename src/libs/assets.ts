@@ -6,7 +6,50 @@ interface ASSET {
 }
 
 
-export const assets: Array<ASSET> = [
+export type CHAIN_ID = 1 | 56 | 137 | 80001
+
+
+export const ethereum : Array<ASSET> = [
+    {
+        name: "USD Coin",
+        symbol: "USDC",
+        address: "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48"
+    },
+    {
+        name: "USD Tether",
+        symbol: "USDT",
+        address: "0xdAC17F958D2ee523a2206206994597C13D831ec7"
+    }
+]
+
+
+export const bsc : Array<ASSET> = [
+    {
+        name: "USD Coin",
+        symbol: "USDC",
+        address: "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d"
+    },
+    {
+        name: "USD Tether",
+        symbol: "USDT",
+        address: "0x55d398326f99059ff775485246999027b3197955"
+    }
+]
+
+export const polygon : Array<ASSET> = [
+    {
+        name: "USD Coin",
+        symbol: "USDC",
+        address: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"
+    },
+    {
+        name: "USD Tether",
+        symbol: "USDT",
+        address: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F"
+    }
+]
+
+export const mumbai : Array<ASSET> = [
     {
         name: "USD Coin",
         symbol: "USDC",
@@ -21,12 +64,8 @@ export const assets: Array<ASSET> = [
         name: "USD Tether",
         symbol: "USDT",
         address: "0xA02f6adc7926efeBBd59Fd43A84f4E0c0c91e832"
-    },
-    {
-        name: "Binance Coin",
-        symbol: "BNB",
-        address: "0x44Bc761E0B58Aa6727202eBd2B636DC924dA9f1a"
     }
 ]
+ 
 
 
